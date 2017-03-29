@@ -1,0 +1,12 @@
+version: "2"
+services:
+  anaconda-nb:
+    build:
+      context: ./anaconda3
+      dockerfile: Dockerfile
+    image: anaconda3:matthewcmead
+    ports:
+      - "127.0.0.1:8888:8888"
+    volumes:
+      - ~/development/notebooks:/notebook
+    command: jupyter-notebook --notebook-dir=/notebook --ip="*"
