@@ -4,7 +4,7 @@ services:
     build:
       context: ./anaconda3
       dockerfile: Dockerfile
-    image: anaconda3:matthewcmead
+    image: matthewcmead/anaconda-nb-docker
     ports:
       - "127.0.0.1:8888:8888"
     volumes:
