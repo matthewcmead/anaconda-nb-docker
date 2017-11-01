@@ -1,61 +1,21 @@
-FROM centos:7 as builder
+FROM matthewcmead/anaconda-nb-docker-centos7 as builder
 
-ENV LANG=en_US.utf8 LC_ALL=en_US.utf8
 
-RUN \
-    yum install -y \
-      wget \
-      bzip2 \
-      ca-certificates \
-      glib2 \
-      libXext \
-      libSM \
-      libXrender \
-      git \
-      mercurial \
-      subversion \
-      curl \
-      grep \
-      sed \
-&& \
-    yum clean all
-      
-COPY software_dist/Anaconda3-4.4.0-Linux-x86_64.sh /anaconda.sh
-RUN echo 'export PATH=/opt/conda/bin:$PATH' > /etc/profile.d/conda.sh \
-&&  /bin/bash /anaconda.sh -b -p /opt/conda
+env TENSORFLOW_VERSION=1.4.0rc1 \
+    TENSORBOARD_VERSION=0.4.0rc1
 
-FROM centos:7 as runner
+COPY pips /tmp/pips
+
+RUN touch /tmp/timestamp.pip \
+&&  pip install --no-cache-dir --no-index --find-links /tmp/pips \
+    tensorflow==${TENSORFLOW_VERSION} \
+    tensorflow-tensorboard==${TENSORBOARD_VERSION} \
+&&  cd /opt/conda && find . -type f -newer /tmp/timestamp.pip >/tmp/conda_changed.txt \
+&&  mkdir /tmp/conda_changed \
+&&  tar -C /opt/conda -T /tmp/conda_changed.txt -cf - | tar -C /tmp/conda_changed -xf -
+
+FROM matthewcmead/anaconda-nb-docker-centos7 as runner
 
 MAINTAINER matt@matthewcmead.com
 
-ENV LANG=en_US.utf8 LC_ALL=en_US.utf8
-
-RUN \
-    yum install -y \
-      wget \
-      bzip2 \
-      ca-certificates \
-      glib2 \
-      libXext \
-      libSM \
-      libXrender \
-      git \
-      mercurial \
-      subversion \
-      curl \
-      grep \
-      sed \
-&& \
-    yum clean all
-
-RUN echo 'export PATH=/opt/conda/bin:$PATH' > /etc/profile.d/conda.sh
-
-COPY --from=builder /opt/conda /opt/conda
-COPY bin/tini /tini
-
-RUN chmod 755 /tini
-
-ENV PATH /opt/conda/bin:$PATH
-
-ENTRYPOINT [ "/tini", "--" ]
-CMD [ "/bin/bash" ]
+COPY --from=builder /tmp/conda_changed /opt/conda
