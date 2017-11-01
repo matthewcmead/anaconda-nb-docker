@@ -21,7 +21,7 @@ JNBDIR="$(cd "$DIR" && cd .. && pwd)"
 
 if [ "$1" == "up" ]; then
   cd $JNBDIR
-  docker-compose up --build -d
+  docker-compose up -d
   URL=""
   while [ "X$URL" == "X" ]; do
     URL="$(docker-compose logs anaconda-nb | grep "http://localhost.*token" | sed "s/.*http/http/")"
