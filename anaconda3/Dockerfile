@@ -20,7 +20,7 @@ RUN \
 && \
     yum clean all
       
-COPY software_dist/Anaconda3-4.4.0-Linux-x86_64.sh /anaconda.sh
+COPY software_dist/Anaconda3-5.2.0-Linux-x86_64.sh /anaconda.sh
 RUN echo 'export PATH=/opt/conda/bin:$PATH' > /etc/profile.d/conda.sh \
 &&  /bin/bash /anaconda.sh -b -p /opt/conda
 
